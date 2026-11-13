@@ -737,8 +737,9 @@ def build_synapse_and_ap_assets(hero_swc, pre_swc):
         )
         receptor_positions.append([round(float(x), 5) for x in r_tip])
 
-    # Fente synaptique ~20 nm nette entre r_tip (+0.0106) et face du bouton (+0.0185)
-    bouton_center = spine_head + cleft_dir * 0.031
+    # Fente synaptique ~20 nm authentique entre r_tip (+0.0106) et face du bouton (+0.0113)
+    bouton_center = spine_head + cleft_dir * 0.0225
+    bouton_back = bouton_center + cleft_dir * 0.0112
 
     # Axone présynaptique doré : VÉRITABLE arborisation axonale ramifiée (chandelier_2) + fibre active
     mb_pre = MeshBuilder()
@@ -761,7 +762,7 @@ def build_synapse_and_ap_assets(hero_swc, pre_swc):
         sm = catmull_rom_chain(simp, subdiv=2)
         tpts = [R_pre @ (c["pos"] * arbor_scale) + arbor_offset for c in sm]
         # Éviter qu'une brindille traverse l'intérieur du gros plan ~20 nm autour de la fente
-        if any(float(np.linalg.norm(p - (spine_head + bouton_center) * 0.5)) < 0.085 for p in tpts):
+        if any(float(np.linalg.norm(p - (spine_head + bouton_center) * 0.5)) < 0.075 for p in tpts):
             continue
         m = len(tpts)
         rads = [max(0.00055, min(0.0023, c["r"] * 0.95 * (1.0 - 0.55 * (i / max(1, m - 1))))) for i, c in enumerate(sm)]
@@ -773,9 +774,9 @@ def build_synapse_and_ap_assets(hero_swc, pre_swc):
         np.array([0.68, 0.10, -0.04]),
         np.array([0.46, 0.01, 0.08]),
         np.array([0.26, 0.08, -0.02]),
-        np.array([0.12, 0.035, 0.025]),
-        bouton_center + cleft_dir * 0.032,
-        bouton_center + cleft_dir * 0.0112,
+        np.array([0.10, 0.025, 0.018]),
+        bouton_back + cleft_dir * 0.016,
+        bouton_back,
     ]
     pre_sm = catmull_rom_chain([{"pos": p, "r": 0.003, "type": 2} for p in pre_ctrl], subdiv=4)
     pre_pts = [c["pos"] for c in pre_sm]
@@ -814,23 +815,23 @@ def build_synapse_and_ap_assets(hero_swc, pre_swc):
         )
 
     # Bouton présynaptique bulbeux, 8 vésicules synaptiques et mitochondrie interne (~20 nm detail)
-    mb_detail.add_sphere(bouton_center, 0.0122, 0.0102, 0.0102, segs=20, rings=14, comp=2, t_val=0.05)
+    mb_detail.add_sphere(bouton_center, 0.0114, 0.0098, 0.0098, segs=20, rings=14, comp=2, t_val=0.05)
     ves_offsets = [
-        (-0.0046, -0.0014, 0.0),
-        (-0.0040, 0.0026, 0.0026),
-        (-0.0040, -0.0032, -0.0026),
-        (-0.0020, 0.0008, -0.0038),
-        (-0.0014, 0.0034, 0.0008),
-        (-0.0008, -0.0026, 0.0032),
-        (0.0020, 0.0014, -0.0020),
-        (0.0026, -0.0020, 0.0020),
+        (-0.0042, -0.0014, 0.0),
+        (-0.0036, 0.0024, 0.0024),
+        (-0.0036, -0.0028, -0.0024),
+        (-0.0018, 0.0008, -0.0034),
+        (-0.0012, 0.0030, 0.0008),
+        (-0.0006, -0.0024, 0.0028),
+        (0.0018, 0.0012, -0.0018),
+        (0.0024, -0.0018, 0.0018),
     ]
     for vo in ves_offsets:
         vp = bouton_center + cleft_dir * vo[0] + cleft_ortho1 * vo[1] + cleft_ortho2 * vo[2]
         mb_detail.add_sphere(vp, 0.00175, 0.00175, 0.00175, segs=10, rings=8, comp=7, t_val=0.0)
 
-    mito_p = bouton_center + cleft_dir * 0.0055 + cleft_ortho1 * 0.0020
-    mb_detail.add_sphere(mito_p, 0.0045, 0.0022, 0.0022, segs=12, rings=8, comp=8, t_val=0.0)
+    mito_p = bouton_center + cleft_dir * 0.0048 + cleft_ortho1 * 0.0020
+    mb_detail.add_sphere(mito_p, 0.0042, 0.0020, 0.0020, segs=12, rings=8, comp=8, t_val=0.0)
 
     # Trajectoire postsynaptique de la synapse -> soma
     apical_path = [

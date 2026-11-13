@@ -699,19 +699,19 @@ export class MicroScene {
     // Molécules de Curare (bloqueurs rouge rubis sur les récepteurs) & Nicotine (agonistes émeraude)
     this.curareGroup = new THREE.Group();
     this.nicotineGroup = new THREE.Group();
-    const blockerGeom = new THREE.SphereGeometry(0.0014, 16, 12);
+    const blockerGeom = new THREE.SphereGeometry(0.0011, 16, 12);
     const curareMat = new THREE.MeshBasicMaterial({ color: 0xff4066 });
     const nicMat = new THREE.MeshBasicMaterial({ color: 0x1ee8a0 });
     this.blockerMeshes = [];
     this.nicMeshes = [];
     for (const rPos of this.synPaths.receptors) {
       const mC = new THREE.Mesh(blockerGeom, curareMat);
-      mC.position.copy(rPos).addScaledVector(this.synPaths.cleftDir, 0.0016);
+      mC.position.copy(rPos).addScaledVector(this.synPaths.cleftDir, 0.0007);
       this.curareGroup.add(mC);
       this.blockerMeshes.push(mC);
 
       const mN = new THREE.Mesh(blockerGeom, nicMat);
-      mN.position.copy(rPos).addScaledVector(this.synPaths.cleftDir, 0.0014);
+      mN.position.copy(rPos).addScaledVector(this.synPaths.cleftDir, 0.0006);
       this.nicotineGroup.add(mN);
       this.nicMeshes.push(mN);
     }
@@ -1063,14 +1063,17 @@ export class MicroScene {
         c.mat.uniforms.uOpacity.value = 0.032;
         c.wireMat.opacity = 0.003;
       }
-      if (this.synDetailMesh) this.synDetailMesh.visible = false;
-      if (this.synBoutonMesh) this.synBoutonMesh.visible = false;
+      if (this.synDetailMesh) this.synDetailMesh.visible = true;
+      if (this.synBoutonMesh) {
+        this.synBoutonMesh.visible = true;
+        this.synBoutonMat.uniforms.uTransMode.value = 0.0;
+      }
       this.curareGroup.visible = false;
       this.nicotineGroup.visible = false;
       this.ntPoints.visible = false;
       this.controls.minDistance = 0.35;
       this.controls.maxDistance = 6.0;
-      this._flyTo([0.24, -0.14, 2.48], [0.02, -0.34, 0], dur);
+      this._flyTo([0.22, -0.12, 2.42], [0.03, -0.32, 0], dur);
       this.fireActionPotential();
     } else if (stageId === 'activite') {
       const box = new THREE.Box3().setFromObject(this.swarmGroup);
@@ -1091,8 +1094,11 @@ export class MicroScene {
 
   _applySynapseZoom(durMs = 740) {
     const ultra = this.state.synapseZoom === 'ultra';
-    if (this.synDetailMesh) this.synDetailMesh.visible = ultra;
-    if (this.synBoutonMesh) this.synBoutonMesh.visible = ultra;
+    if (this.synDetailMesh) this.synDetailMesh.visible = true;
+    if (this.synBoutonMesh) {
+      this.synBoutonMesh.visible = true;
+      this.synBoutonMat.uniforms.uTransMode.value = ultra ? 1.0 : 0.0;
+    }
     this.curareGroup.visible = ultra && this.state.synapseMode === 'curare';
     this.nicotineGroup.visible = ultra && this.state.synapseMode === 'nicotine';
     this.ntPoints.visible = ultra;
@@ -1100,9 +1106,9 @@ export class MicroScene {
     this.controls.maxDistance = 2.4;
     if (ultra) {
       const c = this.synPaths.center;
-      this._flyTo([c.x + 0.010, c.y + 0.008, c.z + 0.090], [c.x - 0.005, c.y, c.z], durMs);
+      this._flyTo([c.x + 0.008, c.y + 0.006, c.z + 0.076], [c.x - 0.004, c.y, c.z], durMs);
     } else {
-      this._flyTo([0.08, 0.02, 1.12], [0.14, -0.06, 0.0], durMs);
+      this._flyTo([0.06, 0.015, 1.05], [0.10, -0.05, 0.0], durMs);
     }
   }
 
@@ -1443,8 +1449,8 @@ export class MicroScene {
         const s = this.ntSeeds[i];
         let u = Math.max(0, Math.min(1, (ntAge - s.delay) * s.speed * 0.72));
         if (blocked && u > 0.65) u = 0.65 + 0.08 * Math.sin(u * 12 + i);
-        const start = this.synPaths.spineHead.clone().addScaledVector(dir, 0.020);
-        const end = this.synPaths.spineHead.clone().addScaledVector(dir, 0.0112);
+        const start = this.synPaths.spineHead.clone().addScaledVector(dir, 0.0125);
+        const end = this.synPaths.spineHead.clone().addScaledVector(dir, 0.0104);
         const pos = start.lerp(end, u);
         pos.addScaledVector(o1, s.lat1 * (1 + u * 0.4));
         pos.addScaledVector(o2, s.lat2 * (1 + u * 0.4));
