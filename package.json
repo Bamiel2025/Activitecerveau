@@ -1,0 +1,19 @@
+{
+  "name": "activitecerveau",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild src/app.js --bundle --minify --format=iife --outfile=docs/app.js && node -e \"require('fs').copyFileSync('src/styles.css','docs/styles.css')\"",
+    "dev": "esbuild src/app.js --bundle --sourcemap --format=iife --outfile=docs/app.js && node -e \"require('fs').copyFileSync('src/styles.css','docs/styles.css')\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "fflate": "^0.8.3",
+    "three": "^0.187.0"
+  }
+}

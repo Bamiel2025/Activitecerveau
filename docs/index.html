@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Le Cerveau Plié · Atlas 3D & Séquence SVT (Cycle 4)</title>
+  <meta name="description" content="Atlas cérébral 3D interactif hors connexion issu d'IRM ouvertes (MNI152, FreeSurfer, Destrieux, Harvard-Oxford, Pauli, Yeo) et séquence pédagogique SVT A1–A6 & DNB 3.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="loader" class="loader">
+    <svg width="42" height="42" viewBox="0 0 48 48" aria-hidden="true">
+      <path d="M24 8C14 8 8 15 8 24c0 6 3 11 8 13v3h16v-3c5-2 8-7 8-13 0-9-6-16-16-16z" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M24 8v29M16 18c4 0 4 5 8 5M32 18c-4 0-4 5-8 5M14 27c5 0 6-3 10-3M34 27c-5 0-6-3-10-3" fill="none" stroke="#6a3fb0" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <div>Décompression du modèle 3D & des coupes IRM…</div>
+  </div>
+
+  <!-- Scène 3D WebGL -->
+  <div id="stage">
+    <canvas id="stageCanvas" aria-label="Cerveau humain en 3D"></canvas>
+    <canvas id="microCanvas" hidden aria-label="Neurones, synapses et activité corticale en 3D"></canvas>
+  </div>
+  <div id="orientLayer" aria-hidden="true"></div>
+  <div id="endpointsLayer" aria-hidden="true"></div>
+  <div id="microCallouts" hidden aria-hidden="true"></div>
+  <div id="hoverTip" class="hover-tip" hidden></div>
+
+  <!-- Barre supérieure -->
+  <header class="topbar">
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 48 48" aria-hidden="true">
+        <path d="M24 8C14 8 8 15 8 24c0 6 3 11 8 13v3h16v-3c5-2 8-7 8-13 0-9-6-16-16-16z" fill="none" stroke="currentColor" stroke-width="2.8"/>
+        <path d="M24 9v27M16 19c4 0 4 5 8 5M32 19c-4 0-4 5-8 5" fill="none" stroke="#6a3fb0" stroke-width="2.6" stroke-linecap="round"/>
+      </svg>
+      <h1>Le Cerveau <em>Plié</em> · SVT</h1>
+    </div>
+
+    <div class="search-wrap" id="searchWrap">
+      <input id="searchInput" type="search" placeholder="Rechercher (hippocampe, dopamine…) /" autocomplete="off" aria-label="Rechercher une structure ou voie">
+      <div id="searchResults" class="search-results" hidden></div>
+    </div>
+
+    <nav class="nav-pills" aria-label="Navigation principale">
+      <button type="button" class="pill" id="btnNavExplore">Explorer 3D</button>
+      <button type="button" class="pill pill-micro" id="btnNavMicro" title="Animations 3D cellulaires & synaptiques (Cortex → Synapse → Activité)">🔬 Micro-Monde 3D</button>
+      <button type="button" class="pill on" id="btnNavActivites">Séance A1–A6 & DNB</button>
+      <button type="button" class="pill" id="btnNavDocs">Docs interactifs</button>
+      <button type="button" class="pill" id="btnNavSources">Lexique & Sources</button>
+      <button type="button" class="pill" id="btnProj" title="Masquer les panneaux pour projeter au tableau">Projection</button>
+      <button type="button" class="pill" id="btnTheme" title="Changer de thème">☾ Sombre</button>
+    </nav>
+  </header>
+
+  <!-- HUD flottant du Micro-Monde 3D (5 échelles) -->
+  <aside class="panel micro-hud" id="microHudCard" hidden aria-label="Exploration cellulaire et synaptique 3D"></aside>
+
+  <!-- Panneau gauche : Index & Couches -->
+  <aside class="panel drawer-left" id="drawerLeft" aria-label="Index des structures et circuits">
+    <div class="tabs" id="leftTabs">
+      <button type="button" class="tab on" data-ltab="regions">Régions</button>
+      <button type="button" class="tab" data-ltab="voies">Voies <span class="kbd">N</span></button>
+      <button type="button" class="tab" data-ltab="reseaux">Réseaux</button>
+      <button type="button" class="tab" data-ltab="emotions">Émotions</button>
+      <button type="button" class="tab" data-ltab="clinique">Clinique</button>
+    </div>
+    <div class="drawer-body" id="leftBody"></div>
+  </aside>
+
+  <!-- Panneau droit : Fiche & Activités skillsvt -->
+  <aside class="panel drawer-right" id="drawerRight" aria-label="Fiches et activités pédagogiques">
+    <div class="tabs" id="rightTabs">
+      <button type="button" class="tab" data-rtab="fiche">Fiche sélection</button>
+      <button type="button" class="tab on" data-rtab="activites">Fiches A1–A6 & DNB 3</button>
+    </div>
+    <div class="drawer-body" id="rightBody"></div>
+  </aside>
+
+  <!-- Dock IRM triplanaire -->
+  <section class="panel mri-dock" id="mriDock" hidden aria-label="Coupes IRM triplanaires"></section>
+
+  <!-- Barre d'outils inférieure (Macro) -->
+  <div class="toolbar" id="macroToolbar" role="toolbar" aria-label="Contrôles de la vue 3D">
+    <button type="button" class="tbtn" data-view="lat_L">Lat. G</button>
+    <button type="button" class="tbtn" data-view="lat_R">Lat. D</button>
+    <button type="button" class="tbtn" data-view="medial">Médiale</button>
+    <button type="button" class="tbtn" data-view="sup">Sup.</button>
+    <button type="button" class="tbtn" data-view="inf">Inf.</button>
+    <button type="button" class="tbtn" data-view="ant">Face</button>
+    <button type="button" class="tbtn" data-view="reset">Reset</button>
+    <span class="tsep"></span>
+    <button type="button" class="tbtn" id="btnDeep">Profond <span class="kbd">D</span></button>
+    <button type="button" class="tbtn" id="btnFlip">Inverser G↔D</button>
+    <button type="button" class="tbtn" id="btnMri">IRM <span class="kbd">M</span></button>
+    <button type="button" class="tbtn" id="btnPathways">Voies <span class="kbd">N</span></button>
+    <button type="button" class="tbtn" id="btnCapture">📸 Capture</button>
+  </div>
+
+  <!-- Barre d'outils inférieure (Micro-Monde 5 étapes) -->
+  <div class="toolbar micro-toolbar" id="microToolbar" hidden role="toolbar" aria-label="Étapes Micro-Monde 3D"></div>
+
+  <!-- Fenêtre modale (Captures, Documents complémentaires, Sources/Lexique) -->
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h2 id="modalTitle"></h2>
+        <button type="button" class="pill" id="modalClose" aria-label="Fermer">✕ Fermer</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Gabarit d'impression PDF -->
+  <div id="printSheet"></div>
+
+  <!-- Données locales compatibles file:// et GitHub Pages -->
+  <script defer src="data/brain.js"></script>
+  <script defer src="data/mri.js"></script>
+  <script defer src="data/micro.js"></script>
+  <script defer src="app.js"></script>
+</body>
+</html>

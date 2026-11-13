@@ -1,0 +1,15 @@
+node_modules/
+pipeline/_cache/
+pipeline/_build/
+pipeline/__pycache__/
+*.pyc
+*.log
+.DS_Store
+Thumbs.db
+
+# Mini-applications indépendantes et scripts associés (non incluses dans l'app globale)
+docs/activites/
+src/mini_*
+src/mini.css
+src/generated_mini_payload.js
+scripts/
