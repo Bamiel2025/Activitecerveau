@@ -6,10 +6,32 @@ pipeline/__pycache__/
 *.log
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
 
-# Mini-applications indépendantes et scripts associés (non incluses dans l'app globale)
-docs/activites/
-src/mini_*
-src/mini.css
-src/generated_mini_payload.js
-scripts/
+# ============================================================================
+# SÉCURITÉ GITHUB / GITHUB PAGES : fichiers enseignant & secrets non publiés
+# ============================================================================
+config.secret.js
+docs/activites/config.secret.js
+*.secret.*
+.env
+
+# Scripts Google Apps Script (réservés au professeur)
+Code.gs
+docs/activites/Code.gs
+*.gs
+
+# Dashboard professeur (usage local uniquement — ne pas exposer sur GitHub)
+docs/activites/prof-dashboard.html
+*prof-dashboard*.html
+
+# Corrigés professeurs imprimables (protégés localement)
+docs/activites/activite_4e_integration_vision.pdf
+docs/activites/activite_4e_integration_vision.odt
+docs/activites/brevet_dnb3_corrige_prof.pdf
+docs/activites/*corrige*
+
+# Exports de copies élèves
+*.csv
+*.tsv

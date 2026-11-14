@@ -582,6 +582,48 @@ body.proj-mode .micro-hud {
   background: linear-gradient(135deg, #5b7cff, #9b59ff);
   color: #fff; box-shadow: 0 0 12px rgba(124, 140, 255, 0.4);
 }
+
+/* Mode plein écran des documents dans l'Atlas 3D */
+.drawer-right.has-fs-corpus {
+  inset: 14px !important;
+  width: auto !important;
+  max-width: none !important;
+  z-index: 45 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.card.is-fs-corpus {
+  position: fixed;
+  inset: 18px;
+  z-index: 50;
+  overflow-y: auto;
+  background: var(--surface-solid);
+  padding: 20px 24px;
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.52);
+  margin: 0;
+}
+.card.is-fs-corpus .doc-mini {
+  padding: 12px 15px;
+  margin-bottom: 12px;
+}
+.card.is-fs-corpus .doc-mini-head { font-size: 15px; }
+.card.is-fs-corpus .doc-mini p,
+.card.is-fs-corpus .doc-mini td,
+.card.is-fs-corpus .doc-mini th { font-size: 14px; line-height: 1.55; }
+.modal.is-fs-modal {
+  width: calc(100vw - 24px);
+  max-width: none;
+  height: calc(100vh - 24px);
+  max-height: 96vh;
+}
+.modal.is-fs-modal .sci-svg {
+  max-height: 68vh;
+  width: auto;
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+}
 @media print {
   .micro-hud, .micro-toolbar, #microCallouts, #microCanvas { display: none !important; }
 }

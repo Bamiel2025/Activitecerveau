@@ -726,6 +726,267 @@ export const ACTIVITIES = [
   },
 
   // =========================================================================
+  // A7 — 4e/3e : Intégration cérébrale dans la vision (aires V1 à V5)
+  // =========================================================================
+  {
+    id: 'A7',
+    code: 'A7',
+    niveau: '4e / 3e',
+    semaine: 'Activité indépendante',
+    duree: '50 min',
+    titre: 'Les conditions d’une bonne perception visuelle : aires V1 à V5 et intégration cérébrale',
+    type: 'Démarche clinique · Intégration cérébrale',
+    accroche: "Après un accident cérébral (AVC), deux patients ont des yeux parfaitement intacts mais des troubles visuels différents : le patient A ne voit plus les couleurs, tandis que le patient B ne reconnaît plus les formes.",
+    sourceAccroche: 'Exercice « Les conditions d’une bonne perception visuelle » ; D.F. Benson',
+    problematique: "Comment expliquer que des lésions cérébrales différentes provoquent des troubles différents de la vision pour comprendre comment le cerveau traite les informations visuelles ?",
+    obstacle: "Croire que seuls les yeux suffisent pour voir, ou qu’une seule zone du cerveau fabrique toute l’image.",
+    rupture: "Étudier les effets de lésions localisées du cerveau permet de comprendre comment différentes zones participent à la vision.",
+    vocab: [
+      { term: 'Cortex visuel (V1–V5)', def: 'Zones à l’arrière du cerveau impliquées dans la vision.' },
+      { term: 'Lésion cérébrale', def: 'Atteinte d’une zone du cerveau perturbant une fonction précise.' },
+      { term: 'Spécialisation', def: 'Chaque aire visuelle traite un aspect précis de l’image.' },
+      { term: 'Intégration cérébrale', def: 'Mise en relation des messages de plusieurs aires du cerveau.' },
+    ],
+    scenario3d: [
+      { label: '1. Carte des 5 aires visuelles (V1 à V5)', action: { lesions: null, hideVisualColors: false, pathway: null, isolate: null, view: 'lat_L' } },
+      { label: '2. Lésions des patients A et B (Doc. 3)', action: { lesions: 'both', hideVisualColors: true, pathway: null, isolate: null, view: 'lat_L' } },
+      { label: '3. Réseau d’intégration V1 ⇄ V2 ⇄ V3/V4/V5', action: { pathway: 'vision_integration', lesions: null, hideVisualColors: false, view: 'lat_L' } },
+    ],
+    docs: [
+      {
+        num: 'Doc. 1',
+        title: 'Dessins du patient A',
+        type: 'observation',
+        source: 'Exercice (Doc. 1)',
+        text: "Le patient A (yeux sains) dessine une pomme rouge et des feuilles vertes : les contours sont corrects mais les couleurs sont perdues.",
+      },
+      {
+        num: 'Doc. 2',
+        title: 'Test des formes du patient B',
+        type: 'tableau',
+        source: 'D.F. Benson, Archives of Neurology (Doc. 2)',
+        text: "Le patient B (yeux sains) doit barrer sur chaque ligne la figure de même forme que le modèle : 0 réussite sur 4.",
+        table: {
+          headers: ['Modèle', 'Choix du patient B', 'Bilan'],
+          rows: [
+            ['1 · Triangle blanc', 'Disque plein noir', 'Erreur'],
+            ['2 · Trapèze noir', 'Triangle noir', 'Erreur'],
+            ['3 · Lettre X', 'Cercle barré Ø', 'Erreur'],
+            ['4 · Clé noire', 'Épingle à nourrice', 'Erreur'],
+          ],
+        },
+      },
+      {
+        num: 'Doc. 3',
+        title: 'Lésions A/B et aires V1–V5 (Modèle 3D)',
+        type: '3d',
+        source: 'Documents 3 & 4 · Modèle 3D',
+        text: "Compare la position des lésions A et B avec la carte des aires visuelles V1 à V5 sur les schémas et le modèle 3D.",
+      },
+    ],
+    voie1: {
+      consigne: "À partir des documents et du modèle 3D, explique comment les cas des patients A et B permettent de comprendre comment le cerveau traite les informations visuelles pour assurer une vision correcte.",
+      fields: [
+        { id: 'a7_tache', label: 'Ta réponse argumentée :', rows: 6, placeholder: 'Écris ta réponse ici...' },
+      ],
+    },
+    voie2: {
+      consigne: 'Réponds aux 3 questions à l’aide des documents, du simulateur et du modèle 3D :',
+      fields: [
+        { id: 'a7_q1', label: 'Q1 (Docs 1 & 2) : Compare les troubles des patients A et B. Que montrent-ils sur le traitement de la vision par le cerveau ?', rows: 2, placeholder: 'Écris ta réponse ici...' },
+        { id: 'a7_q2', label: 'Q2 (Docs 3 & 4 / 3D) : Identifie l’aire visuelle lésée chez le patient A et chez le patient B, puis indique le rôle de chacune.', rows: 2, placeholder: 'Écris ta réponse ici...' },
+        { id: 'a7_q3', label: 'Q3 (Synthèse) : Explique pourquoi les différentes aires visuelles doivent communiquer entre elles (intégration) pour permettre une vision correcte.', rows: 3, placeholder: 'Écris ta réponse ici...' },
+      ],
+    },
+    mdl: {
+      verbeAction: 'Comparer · Identifier · Expliquer',
+      marqueurs: ['tandis que', 'donc', 'en effet', 'c’est pourquoi'],
+      structure: '1. Comparer les troubles (A et B) → 2. Relier chaque lésion à une aire → 3. Expliquer la coopération des aires',
+    },
+    coupsDePouce: [
+      { niv: 'Niveau 1 · Méthode', txt: 'Que réussit et que rate chaque patient dans les documents 1 et 2 ?' },
+      { niv: 'Niveau 2 · Indice', txt: 'Superpose l’emplacement des lésions A et B (Doc. 3) avec la carte des aires V1 à V5 (Doc. 4 ou Modèle 3D).' },
+      { niv: 'Niveau 3 · Notion', txt: 'Chaque aire traite une partie de l’image (formes, couleurs, mouvement). Que se passe-t-il si elles ne communiquent pas entre elles ?' },
+    ],
+    avantDeRendre: [
+      "J'ai comparé ce que voient le patient A et le patient B.",
+      "J'ai relié la lésion de chaque patient à une aire visuelle précise (V1 à V5).",
+      "J'ai expliqué la nécessité d'une intégration entre les aires visuelles.",
+    ],
+    traceEcrite: "La perception visuelle ne dépend pas seulement des yeux, mais de plusieurs aires spécialisées du cortex cérébral (V1 à V5) : V1 reçoit les messages nerveux visuels, V2 les relaie, V3 analyse les formes (lésée chez le patient B), V4 les couleurs (lésée chez le patient A) et V5 le mouvement. Une lésion localisée supprime un aspect précis de la vision. Pour voir de façon globale et cohérente, le cerveau réalise une intégration en mettant en relation l'activité de toutes ces aires.",
+    notions: ['Aires visuelles V1 à V5', 'Spécialisation corticale', 'Lésions cérébrales localisées', 'Intégration cérébrale'],
+    lsu: ['D4.2 · Mettre en relation des documents (symptômes ↔ lésions ↔ carte V1–V5)', 'D1.3 · Expliquer un mécanisme d’intégration cérébrale'],
+    fds: "Faire des sciences : utiliser l'étude de cas cliniques localisés (méthode anatomo-clinique) pour comprendre le fonctionnement normal du cerveau en réseau.",
+    prof: {
+      corrige: [
+        "Q1 : Le patient A reproduit correctement les formes (pomme, feuilles) mais perd la perception des couleurs ; à l'inverse, le patient B échoue totalement à reconnaître des formes identiques (0/4 au test de Benson). Ces troubles dissociés montrent qu'il existe plusieurs zones cérébrales distinctes et spécialisées pour traiter différents aspects de la vision.",
+        "Q2 : En superposant la carte des lésions (Doc. 3) et celle des aires visuelles (Doc. 4 / Modèle 3D), la lésion inférieure du patient A correspond à l'aire V4 (verte), spécialisée dans la perception des couleurs, tandis que la lésion supérieure du patient B correspond à l'aire V3 (bleue), impliquée dans la reconnaissance des formes.",
+        "Q3 : Les messages nerveux issus des yeux arrivent au cortex visuel primaire V1 (réception), passent par l'aire V2 (relais), puis sont distribués en parallèle vers V3 (formes), V4 (couleurs) et V5 (mouvement). Aucune aire seule ne suffit : l'intégration cérébrale (mise en relation de l'ensemble de ces aires en réseau) est indispensable pour percevoir un objet complet (sa forme, sa couleur et son mouvement simultanément).",
+      ],
+      bareme: "Q1 : 3 pts (dissociation A/B → plusieurs zones) · Q2 : 3 pts (A = V4 couleurs ; B = V3 formes) · Q3 : 3 pts (trajet V1→V2→V3/V4/V5 + notion d'intégration) · MDL : 1 pt = 10 pts.",
+      erreursFrequentes: [
+        "Confondre l'atteinte de la rétine (daltonisme, myopie) avec une lésion corticale (ici les yeux sont intacts).",
+        "Inverser la lésion A (V4, inférieure, couleurs) et la lésion B (V3, supérieure, formes).",
+        "Oublier de justifier la nécessité de la communication entre aires (intégration) dans la synthèse.",
+      ],
+      lsu: {
+        MI: "Décrit un dessin ou une image sans relier le trouble à une zone précise du cerveau.",
+        MF: "Associe un patient à une zone mais n'explique ni la spécialisation ni la mise en relation des aires V1–V5.",
+        MS: "Identifie V4 (patient A) et V3 (patient B), distingue leurs rôles et explique l'intégration entre les aires visuelles.",
+        TBM: "Articule rigoureusement les observations cliniques (Docs 1–2), la localisation anatomique (Docs 3–4 / 3D) et la nécessité fonctionnelle de l'intégration en réseau (V1 à V5).",
+      },
+    },
+  },
+
+  // =========================================================================
+  // A8 — 4e/3e : Mode d'action des drogues (alcool, cannabis, cocaïne...) sur la synapse
+  // =========================================================================
+  {
+    id: 'A8',
+    code: 'Activité 8',
+    niveau: '4e / 3e',
+    semaine: 'Séquence Système nerveux & Santé',
+    duree: '50 min',
+    titre: "Effets et modes d'action des drogues (alcool, cannabis, cocaïne) sur le système nerveux",
+    type: 'Démarche explicative · Perturbation synaptique',
+    accroche: "Alcool, cannabis, cocaïne, héroïne ou ecstasy modifient rapidement les perceptions, l'attention, la mémoire et le comportement du consommateur. Tous agissent au cœur des zones de jonction entre neurones : les synapses.",
+    sourceAccroche: 'Observation MET (× 10 000) de zone de jonction synaptique & Tableau des modes d’action (Docs 1–3)',
+    problematique: "Comment expliquer que différentes drogues (alcool, cannabis, cocaïne...) provoquent des troubles du système nerveux en perturbant la transmission du message nerveux au niveau des synapses ?",
+    obstacle: "Penser que les drogues « détruisent physiquement » instantanément tous les nerfs, ou confondre l'extrémité présynaptique (neurones A/B à vésicules) avec le corps cellulaire postsynaptique (neurone C).",
+    rupture: "Au microscope électronique, la transmission repose sur la libération de messagers chimiques contenus dans des vésicules des neurones A et B. Chaque drogue perturbe précisément une étape de ce transfert chimique.",
+    vocab: [
+      { term: 'Zone de jonction (Synapse)', def: 'Espace étroit (~20 nm) séparant la terminaison d’un neurone (A ou B) du corps cellulaire du neurone suivant (C).' },
+      { term: 'Vésicules synaptiques', def: 'Petits éléments circulaires situés dans les terminaisons des neurones A et B, contenant les messagers chimiques (neurotransmetteurs).' },
+      { term: 'Substance déversée (Neurotransmetteur)', def: 'Molécule libérée par les vésicules dans l’espace synaptique et qui vient se fixer sur la membrane du neurone C.' },
+      { term: 'Dépendance & troubles nerveux', def: 'Modification du fonctionnement normal des réseaux neuronaux (euphorie, troubles de l’attention, de la mémoire, hallucinations, dépendance).' },
+    ],
+    scenario3d: [
+      { label: '1. Circuit Dopamine (Récompense & Addictions)', action: { pathway: 'dopamine', deep: true, view: 'medial' } },
+      { label: '2. Voie excitatrice Glutamate', action: { pathway: 'glutamate', deep: true, view: 'lat_L' } },
+      { label: '3. Voie inhibitrice GABA', action: { pathway: 'gaba', deep: true, view: 'lat_L' } },
+      { label: '4. Hippocampe (Mémoire affectée par le cannabis)', action: { isolate: 'hippocampe', deep: true, view: 'medial' } },
+      { label: '5. Micro-Monde 3D : Synapse à ~20 nm', action: { microStage: 'synapse', synapseMode: 'normal' } },
+    ],
+    docs: [
+      {
+        num: 'Doc. 1',
+        title: 'Zone de jonction entre les neurones A et B et le neurone C (MET × 10 000)',
+        type: 'observation',
+        source: 'Microscopie électronique à transmission (vue en coupe longitudinale)',
+        text: "Le cliché montre deux terminaisons d'axone (neurones A et B) en contact étroit avec le corps cellulaire d'un neurone C. En fort grossissement, avant la transmission du message (1), la terminaison B contient de nombreuses vésicules circulaires fermées, alors que le neurone C n'en contient pas et qu'un espace clair sépare les deux membranes. Pendant la transmission (2), certaines vésicules s'ouvrent contre la membrane et déversent leur contenu dans l'espace de la zone de jonction.",
+        legend: "Avant transmission : vésicules stockées dans A/B · Pendant transmission : libération dans l'espace synaptique.",
+      },
+      {
+        num: 'Doc. 2',
+        title: "Mode d'action des drogues et de l'alcool au niveau synaptique",
+        type: 'tableau',
+        source: 'Tableau de synthèse des mécanismes synaptiques',
+        text: "Chaque substance chimique perturbe à sa manière la transmission du message nerveux au niveau de la zone de jonction :",
+        table: {
+          headers: ['Drogues', "Modes d'action sur la synapse"],
+          rows: [
+            ['Cannabis et héroïne', "Se fixent sur la membrane des neurones A ou B et empêchent la majorité des vésicules de déverser les substances qu'elles contiennent dans l'espace de la zone de jonction."],
+            ['Cocaïne et ecstasy', "Maintiennent la substance déversée par les vésicules du neurone A ou B dans l'espace de la zone de jonction (pas d'élimination du messager)."],
+            ['Alcool', "Empêche la substance déversée par les vésicules d'agir sur la membrane du neurone C (blocage des récepteurs du neurone C)."],
+            ['Amphétamines', "Pénètrent dans les vésicules du neurone A ou B, qui se vident alors de leur contenu dans l'espace de la zone de jonction ; la substance déversée s'accumule dans l'espace."],
+          ],
+        },
+        legend: "Trois lieux d'action distincts : extrémité des neurones A/B, espace de la zone de jonction, ou membrane du neurone C.",
+      },
+      {
+        num: 'Doc. 3',
+        title: 'Effets ressentis par le consommateur et lieux d’action',
+        type: 'comparaison',
+        source: 'Atelier clinique & bilan anatomique (neurones A, B et C)',
+        text: "Le cannabis provoque euphorie légère, relaxation, amplification sensorielle mais aussi agitation, troubles de l'attention (apathie, somnolence), de la motivation, de la mémorisation et donc de l'apprentissage. L'héroïne déclenche euphorie, hallucinations, comportement compulsif et forte dépendance (dépression et douleurs au sevrage). Cannabis et héroïne se fixent sur la membrane des neurones A ou B ; cocaïne et ecstasy agissent dans l'espace synaptique ; l'alcool bloque la membrane du neurone C.",
+        legend: 'Lieu 1 : membrane A/B · Lieu 2 : espace synaptique · Lieu 3 : membrane du neurone C.',
+      },
+      {
+        num: 'Doc. 4',
+        title: 'Modèle 3D des circuits cérébraux ciblés par les drogues',
+        type: '3d',
+        source: 'Atlas cérébral 3D · Circuits Dopamine, Glutamate/GABA, Hippocampe & Préfrontal',
+        text: "Observe dans l'onglet Modèle 3D les circuits profonds où s'exercent ces perturbations synaptiques : la voie de la dopamine (ATV → noyau accumbens), les voies excitatrice/inhibitrice (Glutamate / GABA), l'hippocampe (mémoire) et le cervelet (équilibre et coordination perturbés par l'alcool).",
+        legend: 'Cliquer sur « Explorer en 3D » pour visualiser les régions touchées.',
+      },
+    ],
+    voie1: {
+      titre: 'Voie 1 · Tâche complexe (Synthèse scientifique)',
+      consigne: "Rédige un texte argumenté expliquant d'abord comment se transmet un message nerveux au niveau de la zone de jonction entre les neurones B et C (Doc. 1), puis comment les différentes drogues (cannabis/héroïne, cocaïne/ecstasy, alcool, amphétamines) perturbent cette transmission à des endroits précis (Doc. 2 et 3) et provoquent des troubles nerveux.",
+      fields: [
+        {
+          id: 'a8_tache',
+          label: 'Votre explication complète (transmission synaptique + modes et lieux d’action des drogues)',
+          rows: 6,
+          placeholder: 'Écris ta réponse ici...',
+        },
+      ],
+    },
+    voie2: {
+      titre: 'Voie 2 · Parcours guidé (3 étapes)',
+      consigne: 'Observe les documents et manipule le simulateur de synapse, puis réponds aux 3 questions.',
+      fields: [
+        {
+          id: 'a8_q1',
+          label: 'Q1 (Doc. 1 et 3) — Comparer le contenu des neurones B et C avant et pendant la transmission, et relever les principaux troubles nerveux liés aux drogues.',
+          rows: 3,
+          placeholder: 'Écris ta réponse ici...',
+        },
+        {
+          id: 'a8_q2',
+          label: 'Q2 (Doc. 1) — Expliquer comment se déroule la transmission d’un message nerveux au niveau de la zone de jonction (devenir des éléments circulaires).',
+          rows: 3,
+          placeholder: 'Écris ta réponse ici...',
+        },
+        {
+          id: 'a8_q3',
+          label: 'Q3 (Doc. 2 et 3) — En déduire comment et à quel endroit précis chaque drogue (cannabis/héroïne, cocaïne/ecstasy, alcool, amphétamines) perturbe la transmission.',
+          rows: 4,
+          placeholder: 'Écris ta réponse ici...',
+        },
+      ],
+    },
+    mdl: {
+      verbeAction: 'Comparer · Expliquer · Déduire',
+      marqueurs: ['avant / pendant', 'alors que', 'donc', 'tandis que', 'par conséquent'],
+      structure: '1. Différences neurones B vs C → 2. Libération des vésicules dans la synapse → 3. Perturbation ciblée par chaque drogue (lieu + effet)',
+    },
+    coupsDePouce: [
+      { niv: 'Niveau 1 · Observation (Q1)', txt: 'Regarde les petits cercles (vésicules) dans le cliché MET : sont-ils dans le neurone B ou dans le neurone C ? Que change-t-il au niveau de la membrane entre le cliché 1 et le cliché 2 ?' },
+      { niv: 'Niveau 2 · Mécanisme (Q2)', txt: 'Pendant la transmission, les vésicules du neurone B s’ouvrent et libèrent une substance chimique dans l’espace qui le sépare du neurone C.' },
+      { niv: 'Niveau 3 · Lieux d’action (Q3)', txt: 'Classe les drogues selon le schéma du Doc. 3 : quelles drogues agissent sur la membrane A/B ? Dans l’espace synaptique ? Sur la membrane du neurone C ?' },
+    ],
+    avantDeRendre: [
+      "J'ai comparé le contenu du neurone B (présence de vésicules) et du neurone C (absence de vésicules) avant et pendant la transmission.",
+      "J'ai expliqué le devenir des vésicules (ouverture et libération du messager chimique dans l'espace de la zone de jonction).",
+      "J'ai précisé le mode et le lieu d'action du cannabis/héroïne, de la cocaïne/ecstasy, de l'alcool et des amphétamines.",
+    ],
+    traceEcrite: "La transmission d'un message nerveux d'un neurone (A ou B) au neurone suivant (C) se fait au niveau d'une zone de jonction (synapse) : lorsque le message arrive, des vésicules du neurone B déversent une substance chimique dans l'espace synaptique, qui agit ensuite sur la membrane du neurone C. Les drogues et l'alcool perturbent cette communication : le cannabis et l'héroïne se fixent sur la membrane A/B et bloquent la libération des vésicules ; les amphétamines forcent les vésicules à se vider ; la cocaïne et l'ecstasy maintiennent la substance dans l'espace synaptique ; l'alcool empêche la substance d'agir sur la membrane du neurone C. Ces perturbations expliquent les troubles de l'attention, de la mémoire, les hallucinations et la dépendance.",
+    notions: ['Synapse / Zone de jonction', 'Vésicules synaptiques', 'Neurotransmetteurs', 'Modes et lieux d’action des drogues', 'Troubles nerveux & dépendance'],
+    lsu: ['D4.2 · Comparer des électronographies et mettre en relation mode et lieu d’action', 'D4.1 · Modéliser la transmission chimique synaptique et sa perturbation'],
+    fds: "Faire des sciences : passer de l'échelle microscopique (MET × 10 000 d'une synapse) aux effets comportementaux observables à l'échelle de l'organisme.",
+    prof: {
+      corrige: [
+        "Q1 : Avant la transmission, la terminaison du neurone B contient de nombreuses vésicules circulaires alors que le corps cellulaire du neurone C n'en contient aucune (il est séparé par un espace synaptique). Pendant la transmission, moins de vésicules entières restent éloignées de la membrane et certaines fusionnent/s'ouvrent vers l'espace synaptique. Troubles nerveux relevés (Doc. 3) : euphorie, troubles de l'attention (apathie, somnolence), troubles de la mémorisation et de l'apprentissage, agitation, hallucinations et dépendance.",
+        "Q2 : À l'arrivée du message nerveux, les vésicules du neurone B migrent vers la membrane, s'y ouvrent et déversent leur contenu (substance chimique / neurotransmetteur) dans l'espace de la zone de jonction ; ce messager vient ensuite agir sur la membrane du neurone C pour transmettre le message.",
+        "Q3 : Les drogues perturbent la synapse à 3 lieux précis : (1) Extrémité des neurones A ou B : cannabis et héroïne se fixent sur la membrane A/B et empêchent la majorité des vésicules de libérer leur substance, tandis que les amphétamines pénètrent dans les vésicules qui se vident excessivement ; (2) Espace de la zone de jonction : cocaïne et ecstasy maintiennent la substance déversée dans l'espace synaptique (accumulation/sur-stimulation) ; (3) Membrane du neurone C : l'alcool empêche la substance déversée d'agir sur la membrane du neurone C.",
+      ],
+      bareme: "Q1 : 3 pts (comparaison B vs C avant/pendant + troubles nerveux) · Q2 : 3 pts (mécanisme vésiculaire synaptique) · Q3 : 3 pts (modes & 3 lieux d'action : A/B, espace, C) · MDL : 1 pt = 10 pts.",
+      erreursFrequentes: [
+        "Croire que les vésicules se trouvent dans le corps cellulaire du neurone C (elles sont uniquement dans les terminaisons des neurones A et B).",
+        "Confondre les mécanismes : l'alcool bloque l'action sur le neurone C (réception), le cannabis/héroïne bloque la libération par A/B, tandis que cocaïne/amphétamines augmentent la quantité de messager dans l'espace synaptique.",
+        "Oublier de relier la perturbation synaptique aux troubles nerveux ressentis (mémoire, attention, dépendance).",
+      ],
+      lsu: {
+        MI: "Décrit uniquement des points noirs ou des effets sans nommer ni les vésicules ni leur rôle dans la synapse.",
+        MF: "Identifie les vésicules dans B mais n'explique pas la libération chimique ou confond les lieux d'action des drogues.",
+        MS: "Explique la transmission par libération de vésicules de B vers C et distingue le rôle du cannabis, de la cocaïne et de l'alcool.",
+        TBM: "Compare avec rigueur les clichés MET avant/pendant, explique le mécanisme synaptique et situe exactement les 3 lieux d'action (A/B, espace synaptique, membrane C) en lien avec les troubles nerveux.",
+      },
+    },
+  },
+
+  // =========================================================================
   // DNB3 — 3e : Sujet type DNB calibré STRICTEMENT sur 10,0 points (30 min)
   // =========================================================================
   {

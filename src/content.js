@@ -115,6 +115,64 @@ export const STRUCTURES = {
     role: '', limite: "Artefact de la surface corticale moyenne (fsaverage).", hidden: true,
   },
 
+  // ---------------- Modèle ciblé Vision (A7 : V1 à V5 + fond anatomique neutre) ----------------
+  v1: {
+    name: 'Aire visuelle V1 (cortex visuel primaire)', en: 'Primary visual area V1', group: 'cortex', lobe: 'occipital', color: '#f5d11d',
+    desc: "Située tout à l'arrière du lobe occipital (pôle occipital). Première zone corticale atteinte par les messages nerveux issus des yeux (via le nerf optique et le thalamus).",
+    role: "Reçoit l'information visuelle brute (luminosité, orientation des traits) transmise par les yeux. Une lésion de V1 entraîne une cécité corticale (perte de la vision dans la zone correspondante), même si les yeux sont intacts.",
+    limite: "Délimitation adaptée au schéma pédagogique des aires visuelles V1–V5.",
+    hidden: true,
+  },
+  v2: {
+    name: 'Aire visuelle V2 (aire secondaire — relais)', en: 'Visual area V2', group: 'cortex', lobe: 'occipital', color: '#f59e42',
+    desc: "Couronne entourant l'aire V1 dans le lobe occipital. Elle reçoit les signaux de V1 et les distribue vers les aires spécialisées V3, V4 et V5.",
+    role: "Analyse les contours et oriente chaque type d'information visuelle (formes, couleurs, mouvements) vers les aires V3, V4 et V5.",
+    limite: "Délimitation adaptée au schéma pédagogique des aires visuelles V1–V5.",
+    hidden: true,
+  },
+  v3: {
+    name: 'Aire visuelle V3 (reconnaissance des formes)', en: 'Visual area V3 (forms)', group: 'cortex', lobe: 'occipital', color: '#3898d4',
+    desc: "Zone supérieure et postérieure du cortex occipital (en bleu sur le document 4). C'est la zone touchée par la lésion du patient B (Doc. 2 & 3).",
+    role: "Analyse et reconnaît les formes géométriques et les contours des objets. Une lésion de V3 empêche d'identifier les formes (patient B : barre les mauvaises formes au test de Benson), bien que les yeux et les couleurs restent perçus.",
+    limite: "Délimitation adaptée au schéma pédagogique des aires visuelles V1–V5.",
+    hidden: true,
+  },
+  v4: {
+    name: 'Aire visuelle V4 (perception des couleurs)', en: 'Visual area V4 (color)', group: 'cortex', lobe: 'occipital', color: '#8cc63f',
+    desc: "Zone inférieure à la jonction occipito-temporale, juste au-dessus du cervelet (en vert sur le document 4). C'est la zone touchée par la lésion du patient A (Doc. 1 & 3).",
+    role: "Traite et reconstitue les couleurs des objets vus. Une lésion de V4 provoque une achromatopsie cérébrale (perte de la vision des couleurs : le patient A dessine la pomme et les feuilles en teintes grisâtres/ternes).",
+    limite: "Délimitation adaptée au schéma pédagogique des aires visuelles V1–V5.",
+    hidden: true,
+  },
+  v5: {
+    name: 'Aire visuelle V5 / MT (perception du mouvement)', en: 'Visual area V5 / MT (motion)', group: 'cortex', lobe: 'temporal', color: '#e04636',
+    desc: "Petite région située à la jonction temporo-occipitale latérale (en rouge sur le document 4).",
+    role: "Détecte la direction et la vitesse des objets en mouvement. Une lésion de V5 provoque une akinétopsie : le patient perçoit les formes et les couleurs mais voit les mouvements comme une suite d'images fixes saccadées.",
+    limite: "Délimitation adaptée au schéma pédagogique des aires visuelles V1–V5.",
+    hidden: true,
+  },
+  cortex_neutre: {
+    name: 'Reste du cortex cérébral (hors aires visuelles)', en: 'Non-visual cortex', group: 'cortex', lobe: null, color: '#ddd6cb',
+    desc: "Régions corticales non directement ciblées dans l'exercice sur la vision.",
+    role: "Les lobes frontal, pariétal et temporal non visuels assurent d'autres fonctions (motricité, toucher, audition, langage) et restent neutres sur ce modèle simplifié.",
+    limite: "",
+    hidden: true,
+  },
+  cervelet_neutre: {
+    name: 'Cervelet (repère anatomique)', en: 'Cerebellum', group: 'cervelet', color: '#c29688',
+    desc: "Structure située sous le lobe occipital (repère anatomique identique aux schémas de l'exercice).",
+    role: "Équilibre et coordination des mouvements (hors lésion visuelle dans l'exercice).",
+    limite: "",
+    hidden: true,
+  },
+  tronc_neutre: {
+    name: 'Tronc cérébral (repère anatomique)', en: 'Brainstem', group: 'tronc', color: '#e2dcd3',
+    desc: "Relais entre le cerveau et la moelle épinière.",
+    role: "Repère anatomique du schéma de profil.",
+    limite: "",
+    hidden: true,
+  },
+
   // ---------------- structures profondes ----------------
   hippocampe: {
     name: 'Hippocampe', en: 'Hippocampus', group: 'profond', color: '#f2c14e',
@@ -291,6 +349,20 @@ export const PATHWAYS = {
     name: 'Orexine', type: 'mod', color: '#ff9f1c',
     desc: "Stabilise l'éveil et l'appétit ; active les autres systèmes d'éveil (locus coeruleus, raphé, ATV). Source : hypothalamus latéral.",
     routes: [['hypothalamus', 'locus_coeruleus'], ['hypothalamus', 'raphe'], ['hypothalamus', 'vta'], ['hypothalamus', 'prefrontal']],
+  },
+  vision_integration: {
+    name: 'Intégration visuelle (V1 → V2 → V3 + V4 + V5)', type: 'exc', color: '#3fb6ff', hidden: true,
+    desc: "Flux de messages nerveux reliant le thalamus (relais des yeux), l'aire primaire V1, le relais V2, puis en parallèle V3 (formes), V4 (couleurs) et V5 (mouvement), qui coopèrent pour construire une vision globale.",
+    routes: [
+      ['thalamus', 'v1'],
+      ['v1', 'v2'],
+      ['v2', 'v3'],
+      ['v2', 'v4'],
+      ['v2', 'v5'],
+      ['v3', 'v4'],
+      ['v3', 'v5'],
+      ['v4', 'v5'],
+    ],
   },
 };
 

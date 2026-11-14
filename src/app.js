@@ -167,6 +167,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!st.hidden) searchItems.push({ kind: 'structure', id: k, label: st.name, sub: st.en });
   }
   for (const [k, pw] of Object.entries(PATHWAYS)) {
+    if (pw.hidden) continue;
     searchItems.push({ kind: 'pathway', id: k, label: `Voie : ${pw.name}`, sub: pw.type === 'exc' ? 'Excitateur' : pw.type === 'inh' ? 'Inhibiteur' : 'Neuromodulateur' });
   }
   for (let i = 1; i < NETWORKS.length; i++) {
@@ -592,7 +593,13 @@ window.addEventListener('DOMContentLoaded', () => {
     else if (k === 'n') { e.preventDefault(); document.getElementById('btnPathways').click(); }
     else if (e.key === '/') { e.preventDefault(); searchInput.focus(); }
     else if (e.key === 'Escape') {
-      if (!document.getElementById('modalBackdrop').hidden) closeModal();
+      const fsCard = document.querySelector('.card.is-fs-corpus');
+      if (fsCard) {
+        fsCard.classList.remove('is-fs-corpus');
+        document.querySelector('.drawer-right')?.classList.remove('has-fs-corpus');
+        const btnC = document.getElementById('btnCorpusFs');
+        if (btnC) btnC.textContent = '⛶ Plein écran';
+      } else if (!document.getElementById('modalBackdrop').hidden) closeModal();
       else brain.isolate(null);
     }
   });
@@ -674,6 +681,7 @@ window.addEventListener('DOMContentLoaded', () => {
         html += `<button type="button" class="btn-ghost" id="btnClearPw" style="width:100%;margin-bottom:8px">✕ Masquer les voies</button>`;
       }
       for (const [k, pw] of Object.entries(PATHWAYS)) {
+        if (pw.hidden) continue;
         const on = st.activePathway === k;
         const tLbl = pw.type === 'exc' ? 'Excitateur ●' : (pw.type === 'inh' ? 'Inhibiteur ○' : 'Modulateur ✦');
         html += `<button type="button" class="item-btn ${on ? 'on' : ''}" data-pw="${k}">
@@ -998,7 +1006,10 @@ window.addEventListener('DOMContentLoaded', () => {
           <div style="margin-bottom:8px">
             ${act.scenario3d.map((s, idx) => `<button type="button" class="step-btn" data-step="${idx}">${esc(s.label)}</button>`).join('')}
           </div>
-          <div class="grp-title" style="margin-top:8px">Corpus documentaire (3 documents)</div>
+          <div class="grp-title" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <span>Corpus documentaire (${act.docs.length} documents)</span>
+            <button type="button" class="pill" id="btnCorpusFs" title="Afficher les documents en plein écran">⛶ Plein écran</button>
+          </div>
           ${act.docs.map(d => `
             <div class="doc-mini">
               <div class="doc-mini-head">
@@ -1030,7 +1041,7 @@ window.addEventListener('DOMContentLoaded', () => {
           </div>
           ${vObj.fields.map(f => `
             <label class="field-lbl" for="fld_${f.id}">${esc(f.label)}</label>
-            <textarea class="stu-input" id="fld_${f.id}" rows="${f.rows}" data-fid="${f.id}" placeholder="${esc(f.placeholder)}">${esc(ui.answers[f.id] || '')}</textarea>
+            <textarea class="stu-input" id="fld_${f.id}" rows="${f.rows}" data-fid="${f.id}" placeholder="Écris ta réponse ici...">${esc(ui.answers[f.id] || '')}</textarea>
           `).join('')}
 
           <div class="check-box">
@@ -1043,9 +1054,10 @@ window.addEventListener('DOMContentLoaded', () => {
           <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:6px;flex-wrap:wrap">
             <strong style="font-size:12px">Captures 3D (${caps.length})</strong>
             <div style="display:flex;gap:5px;flex-wrap:wrap">
+              <a class="btn-primary" href="activites/${esc(act.id.toLowerCase())}.html" style="text-decoration:none;display:inline-flex;align-items:center">📤 Envoyer au professeur</a>
               <button type="button" class="btn-ghost" id="btnActCap">+ Capture 3D</button>
-              <button type="button" class="btn-primary" id="btnPrintAct">🖨️ Fiche Élève A4</button>
-              <button type="button" class="btn-ghost" id="btnPrintProf">📋 Guide Prof A4</button>
+              <button type="button" class="btn-ghost" id="btnPrintAct">🖨️ Fiche Élève A4</button>
+              <button type="button" class="btn-ghost" id="btnPrintProf">🔒 Guide Prof A4</button>
             </div>
           </div>
           ${caps.length ? `<div class="cap-grid">${caps.map((c, ci) => `
@@ -1063,31 +1075,28 @@ window.addEventListener('DOMContentLoaded', () => {
           ${act.coupsDePouce.map(cp => `
             <details class="hint-box"><summary>${esc(cp.niv)}</summary><p style="margin:4px 0 0">${esc(cp.txt)}</p></details>
           `).join('')}
-          <details class="hint-box" style="margin-top:8px">
-            <summary>✍️ Trace écrite « Je retiens » &amp; Notions</summary>
-            <p style="margin:6px 0">${esc(act.traceEcrite)}</p>
-            <div class="meta-row">${act.notions.map(n => `<span class="badge neutral">${esc(n)}</span>`).join('')}</div>
-            <p style="margin:6px 0 0;font-size:12px"><strong>Repère « Faire des sciences » :</strong> ${esc(act.fds)}</p>
-          </details>
-          <details class="hint-box" style="margin-top:6px">
-            <summary>👩‍🏫 Corrigé, barème &amp; grille LSU (Professeur)</summary>
-            <div style="margin:6px 0 4px;font-size:12px"><strong>Barème :</strong> ${esc(act.prof.bareme)}</div>
-            <ul style="margin:4px 0 6px;padding-left:16px;font-size:12px">
-              ${act.prof.corrige.map(r => `<li style="margin-bottom:3px">${esc(r)}</li>`).join('')}
-            </ul>
-            <div style="font-size:11.5px;margin-bottom:4px"><strong>Erreurs fréquentes :</strong> ${esc(act.prof.erreursFrequentes.join(' · '))}</div>
-            <div style="font-size:11.5px">
-              <strong>LSU :</strong>
-              MI : ${esc(act.prof.lsu.MI)} |
-              MF : ${esc(act.prof.lsu.MF)} |
-              MS : ${esc(act.prof.lsu.MS)} |
-              TBM : ${esc(act.prof.lsu.TBM)}
+          <div class="hint-box" id="profLockBox" style="margin-top:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap">
+              <strong>🔒 Trace écrite &amp; Corrigé professeur (${esc(act.id)})</strong>
+              <button type="button" class="btn-ghost" id="btnUnlockGlobalProf" style="font-size:11.5px;padding:4px 8px">Déverrouiller (code prof)</button>
             </div>
-          </details>
+            <div id="profUnlockedContent" style="display:none;margin-top:8px"></div>
+          </div>
         </div>
       `;
 
       renderSelectionBanner();
+
+      document.querySelector('.drawer-right')?.classList.remove('has-fs-corpus');
+      rightBody.querySelector('#btnCorpusFs')?.addEventListener('click', (ev) => {
+        const card = ev.currentTarget.closest('.card');
+        const drawer = document.querySelector('.drawer-right');
+        if (!card) return;
+        const next = !card.classList.contains('is-fs-corpus');
+        card.classList.toggle('is-fs-corpus', next);
+        drawer?.classList.toggle('has-fs-corpus', next);
+        ev.currentTarget.textContent = next ? '✕ Quitter plein écran' : '⛶ Plein écran';
+      });
 
       rightBody.querySelectorAll('[data-step]').forEach((b) => {
         b.addEventListener('click', () => {
@@ -1140,7 +1149,30 @@ window.addEventListener('DOMContentLoaded', () => {
 
       rightBody.querySelector('#btnActCap')?.addEventListener('click', () => openCaptureModal());
       rightBody.querySelector('#btnPrintAct')?.addEventListener('click', () => printActivity(act));
-      rightBody.querySelector('#btnPrintProf')?.addEventListener('click', () => printProfGuide(act));
+      rightBody.querySelector('#btnPrintProf')?.addEventListener('click', () => {
+        const code = window.prompt('Code enseignant requis pour imprimer le guide professeur :');
+        if (code === '2027') printProfGuide(act);
+      });
+      rightBody.querySelector('#btnUnlockGlobalProf')?.addEventListener('click', () => {
+        const code = window.prompt('Code enseignant requis :');
+        const target = rightBody.querySelector('#profUnlockedContent');
+        if (code !== '2027' || !target) return;
+        target.style.display = 'block';
+        target.innerHTML = `
+          <p style="margin:4px 0"><strong>✍️ Je retiens :</strong> ${esc(act.traceEcrite)}</p>
+          <div class="meta-row" style="margin-bottom:6px">${act.notions.map(n => `<span class="badge neutral">${esc(n)}</span>`).join('')}</div>
+          <p style="margin:4px 0;font-size:12px"><strong>Repère « Faire des sciences » :</strong> ${esc(act.fds)}</p>
+          <div style="margin:6px 0 4px;font-size:12px"><strong>Barème :</strong> ${esc(act.prof.bareme)}</div>
+          <ul style="margin:4px 0 6px;padding-left:16px;font-size:12px">
+            ${act.prof.corrige.map(r => `<li style="margin-bottom:3px">${esc(r)}</li>`).join('')}
+          </ul>
+          <div style="font-size:11.5px;margin-bottom:4px"><strong>Erreurs fréquentes :</strong> ${esc(act.prof.erreursFrequentes.join(' · '))}</div>
+          <div style="font-size:11.5px">
+            <strong>LSU :</strong>
+            MI : ${esc(act.prof.lsu.MI)} | MF : ${esc(act.prof.lsu.MF)} | MS : ${esc(act.prof.lsu.MS)} | TBM : ${esc(act.prof.lsu.TBM)}
+          </div>
+        `;
+      });
       rightBody.querySelectorAll('[data-delcap]').forEach((b) => {
         b.addEventListener('click', () => {
           caps.splice(Number(b.dataset.delcap), 1);
@@ -1169,7 +1201,16 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modalClose').addEventListener('click', closeModal);
   backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
 
-  function closeModal() { backdrop.hidden = true; modalBody.innerHTML = ''; }
+  function closeModal() {
+    backdrop.hidden = true;
+    modalBody.innerHTML = '';
+    backdrop.querySelector('.modal')?.classList.remove('is-fs-modal');
+    const fsBtn = document.getElementById('btnModalFs');
+    if (fsBtn) {
+      fsBtn.hidden = true;
+      fsBtn.textContent = '⛶ Plein écran';
+    }
+  }
 
   function openCaptureModal() {
     const imgUrl = ui.microMode && micro ? micro.capturePng() : brain.capturePng();
@@ -1208,6 +1249,31 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function openDocsModal(tab = 'synapse') {
     modalTitle.textContent = 'Documents complémentaires (données sourcées & changements d’échelle)';
+    const mHead = backdrop.querySelector('.modal-head');
+    const mClose = document.getElementById('modalClose');
+    if (mHead && mClose) {
+      let btnFs = document.getElementById('btnModalFs');
+      if (!btnFs) {
+        btnFs = document.createElement('button');
+        btnFs.type = 'button';
+        btnFs.className = 'pill';
+        btnFs.id = 'btnModalFs';
+        btnFs.title = 'Afficher les documents en plein écran';
+        btnFs.style.marginLeft = 'auto';
+        btnFs.style.marginRight = '6px';
+        mHead.insertBefore(btnFs, mClose);
+        btnFs.addEventListener('click', () => {
+          const modalEl = backdrop.querySelector('.modal');
+          if (!modalEl) return;
+          const next = !modalEl.classList.contains('is-fs-modal');
+          modalEl.classList.toggle('is-fs-modal', next);
+          btnFs.textContent = next ? '✕ Réduire' : '⛶ Plein écran';
+        });
+      }
+      btnFs.hidden = false;
+      btnFs.textContent = '⛶ Plein écran';
+    }
+    backdrop.querySelector('.modal')?.classList.remove('is-fs-modal');
     modalBody.innerHTML = `
       <div class="seg-row" style="margin-bottom:12px">
         <button type="button" class="seg-btn ${tab === 'audition' ? 'on' : ''}" data-dtab="audition">🎧 Audition (A2)</button>

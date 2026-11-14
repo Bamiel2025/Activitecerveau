@@ -30,6 +30,8 @@ export class BrainScene {
       activeRouteIdx: -1,
       activeSystem: null,
       activeClinical: null,
+      visionLesions: null, // null | 'both' | 'A' | 'B'
+      visionHideAreaColors: false,
       mriOpen: false,
       mriAxis: 'sag', // 'ax' | 'cor' | 'sag'
       mriPosMm: [24, -22, 6], // [x, y, z] MNI en mm
@@ -48,9 +50,16 @@ export class BrainScene {
     this.clock = new THREE.Clock();
     this.pathwayGroup = new THREE.Group();
     this.brainRoot.add(this.pathwayGroup);
+    this.lesionGroup = new THREE.Group();
+    this.brainRoot.add(this.lesionGroup);
+    this.lesionMeshes = [];
     this.particles = [];
     this.routeMeshes = [];
     this.routeEndpoints = []; // { label, posMni, color }
+
+    if (this.brainData.isVisionModel) {
+      this.visionAnchors = this._computeVisionAnchors();
+    }
 
     this._applyMaterials();
     this._animate();
@@ -223,7 +232,8 @@ export class BrainScene {
 
     for (const part of this.parts) {
       const info = STRUCTURES[part.key] || { color: '#99a2b0', lobe: null };
-      let baseColor = hexToColor(info.color);
+      const hideVis = this.state.visionHideAreaColors && /^v[1-5]$/.test(part.key);
+      let baseColor = hexToColor(hideVis ? '#ddd6cb' : info.color);
       if (mode === 'lobes' && info.lobe && LOBES[info.lobe]) {
         baseColor = hexToColor(LOBES[info.lobe].color);
       }
@@ -303,8 +313,12 @@ export class BrainScene {
         const pw = PATHWAYS[s.activePathway];
         const involved = new Set(pw.routes.flat());
         const hit = involved.has(part.key);
-        solid = hit && part.isDeep;
-        softTarget = hit && !part.isDeep;
+        if (s.activePathway === 'vision_integration') {
+          solid = hit;
+        } else {
+          solid = hit && part.isDeep;
+          softTarget = hit && !part.isDeep;
+        }
       } else if (netOnly) {
         solid = part.kind === 'cortex';
       } else if (s.deep) {
@@ -316,10 +330,14 @@ export class BrainScene {
         continue;
       }
 
+      const isVisionNeutral = this.brainData.isVisionModel && (
+        part.key === 'cortex_neutre' || part.key === 'cervelet_neutre' || part.key === 'tronc_neutre'
+      );
+
       if (solid) {
         part.mesh.material = part.solidMat;
         part.mesh.renderOrder = 0;
-        const isHovered = s.hoveredPart && s.hoveredPart.key === part.key;
+        const isHovered = !isVisionNeutral && s.hoveredPart && s.hoveredPart.key === part.key;
         const isIso = s.isolatedKey === part.key;
         part.solidMat.emissive.setHex(isIso ? 0x261a42 : (isHovered ? 0x1e2536 : 0x000000));
         part.solidMat.emissiveIntensity = isIso ? 0.45 : (isHovered ? 0.55 : 0);
@@ -328,7 +346,10 @@ export class BrainScene {
       } else {
         part.mesh.material = part.ghostMat;
         part.mesh.renderOrder = 1;
-        part.ghostMat.opacity = softTarget ? 0.34 : (part.isDeep ? ghostOpacityDeep : ghostOpacityCortex);
+        const visGhost = (this.brainData.isVisionModel && isVisionNeutral)
+          ? (s.isolatedKey ? 0.22 : 0.16)
+          : (part.isDeep ? ghostOpacityDeep : ghostOpacityCortex);
+        part.ghostMat.opacity = softTarget ? 0.34 : visGhost;
         part.ghostMat.color.setHex(softTarget ? 0xffffff : (isLight ? 0xc8d2e2 : 0xb2c3e0));
         part.ghostMat.emissive.setHex(isLight ? 0x455878 : 0x2c3c5a);
         part.ghostMat.emissiveIntensity = softTarget ? 0.08 : (isLight ? 0.12 : 0.22);
@@ -605,6 +626,10 @@ export class BrainScene {
 
     const pick = () => {
       this.raycaster.setFromCamera(this.pointer, this.camera);
+      if (this.lesionMeshes.length) {
+        const lHits = this.raycaster.intersectObjects(this.lesionMeshes, false);
+        if (lHits.length) return lHits[0].object.userData.partRef;
+      }
       // En mode structures profondes (D), on ignore le cortex fantôme pour cliquer aisément dedans
       const candidates = this.parts
         .filter(p => p.mesh.visible && (!this.state.deep || p.isDeep || this.state.isolatedKey === p.key))
@@ -628,7 +653,10 @@ export class BrainScene {
       const part = pick();
       if (part !== this.state.hoveredPart) {
         this.state.hoveredPart = part;
-        this.canvas.classList.toggle('pointer', Boolean(part));
+        const isNeutral = this.brainData.isVisionModel && part && (
+          part.key === 'cortex_neutre' || part.key === 'cervelet_neutre' || part.key === 'tronc_neutre'
+        );
+        this.canvas.classList.toggle('pointer', Boolean(part && !isNeutral));
         this._applyMaterials();
       }
       if (this.cb.onHover) this.cb.onHover(part, e.clientX, e.clientY);
@@ -651,7 +679,14 @@ export class BrainScene {
       updatePointer(e);
       const part = pick();
       if (part) {
-        this.isolate(part.key === this.state.isolatedKey ? null : part.key);
+        if (this.brainData.isVisionModel && (
+          part.key === 'cortex_neutre' || part.key === 'cervelet_neutre' || part.key === 'tronc_neutre'
+        )) {
+          if (this.state.isolatedKey) this.isolate(null);
+          this.cb.onSelectStructure?.(part.key, part);
+          return;
+        }
+        this.isolate(part.key === this.state.isolatedKey ? null : part.key, part);
       } else if (this.state.isolatedKey) {
         this.isolate(null);
       }
@@ -725,11 +760,122 @@ export class BrainScene {
     this.cb.onStateChange?.(this.state);
   }
 
-  isolate(key) {
+  isolate(key, metaPart = null) {
     this.state.isolatedKey = key || null;
     this._applyMaterials();
     if (this.state.mriOpen) this._updateMriPlane();
-    this.cb.onSelectStructure?.(this.state.isolatedKey);
+    this.cb.onSelectStructure?.(this.state.isolatedKey, metaPart);
+    this.cb.onStateChange?.(this.state);
+  }
+
+  _computeVisionAnchors() {
+    const targets = {
+      v1: { y: -96, z: -6, maxX: -16 },
+      v2: { y: -90, z: 4, maxX: -24 },
+      v3: { y: -79, z: 12, maxX: -28 },
+      v4: { y: -66, z: -14, maxX: -30 },
+      v5: { y: -51, z: 4, maxX: -44 },
+    };
+    const anchors = {};
+    for (const [key, t] of Object.entries(targets)) {
+      const part = (this.partsByKey.get(key) || []).find(p => p.hemi === 'L');
+      if (!part) continue;
+      let bestScore = Infinity;
+      let best = new THREE.Vector3(...part.center);
+      for (let i = 0; i < part.nv; i++) {
+        const x = part.positions[i * 3];
+        const y = part.positions[i * 3 + 1];
+        const z = part.positions[i * 3 + 2];
+        if (x > t.maxX) continue;
+        const score = (y - t.y) * (y - t.y) + (z - t.z) * (z - t.z) + x * 0.45;
+        if (score < bestScore) {
+          bestScore = score;
+          best.set(x, y, z);
+        }
+      }
+      anchors[key] = best;
+    }
+    if (anchors.v4) anchors.lesionA = anchors.v4.clone().add(new THREE.Vector3(-1.4, 0, 0));
+    if (anchors.v3) anchors.lesionB = anchors.v3.clone().add(new THREE.Vector3(-1.4, 0, 0));
+    return anchors;
+  }
+
+  setVisionHideAreaColors(hide) {
+    const next = Boolean(hide);
+    if (this.state.visionHideAreaColors === next) return;
+    this.state.visionHideAreaColors = next;
+    this._recolorVertices();
+  }
+
+  setVisionLesions(mode) {
+    this.state.visionLesions = mode || null;
+    while (this.lesionGroup.children.length) {
+      const ch = this.lesionGroup.children[0];
+      this.lesionGroup.remove(ch);
+      if (ch.geometry) ch.geometry.dispose();
+      if (ch.material) ch.material.dispose();
+    }
+    this.lesionMeshes = [];
+
+    if (!mode || !this.visionAnchors) {
+      this.cb.onStateChange?.(this.state);
+      return;
+    }
+
+    const specs = [];
+    if ((mode === 'both' || mode === 'A') && this.visionAnchors.lesionA) {
+      specs.push({
+        lesionId: 'A',
+        key: 'v4',
+        name: 'Lésion Patient A (Aire V4 · Couleurs)',
+        pos: this.visionAnchors.lesionA,
+        r: 5.8,
+      });
+    }
+    if ((mode === 'both' || mode === 'B') && this.visionAnchors.lesionB) {
+      specs.push({
+        lesionId: 'B',
+        key: 'v3',
+        name: 'Lésion Patient B (Aire V3 · Formes)',
+        pos: this.visionAnchors.lesionB,
+        r: 7.4,
+      });
+    }
+
+    for (const sp of specs) {
+      const coreGeom = new THREE.SphereGeometry(sp.r, 22, 22);
+      const coreMat = new THREE.MeshStandardMaterial({
+        color: 0xe52b20,
+        emissive: 0xd9251b,
+        emissiveIntensity: 0.45,
+        roughness: 0.32,
+        transparent: true,
+        opacity: 0.92,
+      });
+      const core = new THREE.Mesh(coreGeom, coreMat);
+      core.position.copy(sp.pos);
+      core.userData.partRef = {
+        key: sp.key,
+        lesionId: sp.lesionId,
+        isLesionMarker: true,
+        name: sp.name,
+      };
+      this.lesionGroup.add(core);
+      this.lesionMeshes.push(core);
+
+      const haloGeom = new THREE.SphereGeometry(sp.r * 1.28, 22, 22);
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: 0xff4b3e,
+        transparent: true,
+        opacity: 0.24,
+        depthWrite: false,
+      });
+      const halo = new THREE.Mesh(haloGeom, haloMat);
+      halo.position.copy(sp.pos);
+      halo.userData.isHalo = true;
+      this.lesionGroup.add(halo);
+    }
+
     this.cb.onStateChange?.(this.state);
   }
 
@@ -804,6 +950,8 @@ export class BrainScene {
       this.state.activePathway = null;
       this.state.activeSystem = null;
       this.state.activeClinical = null;
+      this.state.visionLesions = null;
+      this.state.visionHideAreaColors = false;
       this.state.colorMode = 'regions';
       this.state.activeNetwork = 0;
       this.state.hemiMode = 'both';
@@ -811,6 +959,7 @@ export class BrainScene {
       this.state.mriClip = false;
       this._recolorVertices();
       this._rebuildPathways();
+      this.setVisionLesions(null);
       this._updateMriPlane();
       this._applyMaterials();
       this.cb.onSelectStructure?.(null);
@@ -829,6 +978,8 @@ export class BrainScene {
 
   applyAction(action) {
     if (!action) return;
+    if (action.hideVisualColors !== undefined) this.setVisionHideAreaColors(action.hideVisualColors);
+    if (action.lesions !== undefined) this.setVisionLesions(action.lesions);
     if (action.hemiMode) this.setHemiMode(action.hemiMode);
     if (action.hideLeft !== undefined) this.setHemiMode(action.hideLeft ? 'onlyR' : 'both');
     if (action.deep !== undefined) this.setDeep(action.deep);
@@ -927,6 +1078,20 @@ export class BrainScene {
         } else if (clin.down.includes(part.key)) {
           part.solidMat.emissive.setHex(0x2d78c4);
           part.solidMat.emissiveIntensity = 0.18 + 0.35 * pulseDn;
+        }
+      }
+    }
+
+    // Pulsation des marqueurs de lésions visuelles (Patients A & B)
+    if (this.state.visionLesions && this.lesionGroup.children.length) {
+      const pulse = 0.5 + 0.5 * Math.sin(now * 0.005);
+      for (const ch of this.lesionGroup.children) {
+        if (ch.userData.isHalo) {
+          const sc = 0.96 + 0.14 * pulse;
+          ch.scale.set(sc, sc, sc);
+          ch.material.opacity = 0.14 + 0.16 * pulse;
+        } else if (ch.material && ch.material.emissiveIntensity !== undefined) {
+          ch.material.emissiveIntensity = 0.3 + 0.42 * pulse;
         }
       }
     }
