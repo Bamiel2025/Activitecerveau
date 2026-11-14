@@ -114,22 +114,24 @@ ${mriScript}  <script src="mini_app.js"></script>
 `;
 }
 
-function renderPortalHtml(acts) {
+function renderPortalHtml(acts, opts = {}) {
+  const basePrefix = opts.basePrefix || '';
+  const atlasHref = opts.atlasHref || '../atlas.html';
   const cards = acts.map((a) => {
-    const imgName = a.id.toLowerCase() + '.jpg';
-    const fileName = a.id.toLowerCase() + '.html';
+    const imgName = basePrefix + 'img/' + a.id.toLowerCase() + '.jpg';
+    const fileName = basePrefix + a.id.toLowerCase() + '.html';
     return `
       <article class="card">
-        <a class="card-thumb" href="${fileName}">
-          <img src="img/${imgName}" alt="${escHtml(a.titre)}" loading="lazy">
+        <a class="card-thumb" href="${fileName}" target="_blank" rel="noopener">
+          <img src="${imgName}" alt="${escHtml(a.titre)}" loading="lazy">
           <span class="card-lvl">${escHtml(a.niveau)} · ${escHtml(a.duree)}</span>
         </a>
         <div class="card-body">
           <div class="card-code">${escHtml(a.code)} · ${escHtml(a.semaine)}</div>
-          <h2><a href="${fileName}">${escHtml(a.titre)}</a></h2>
+          <h2><a href="${fileName}" target="_blank" rel="noopener">${escHtml(a.titre)}</a></h2>
           <p class="card-pb">${escHtml(a.problematique)}</p>
           <p class="card-src">${escHtml(a.sourceAccroche)}</p>
-          <a class="card-go" href="${fileName}">Ouvrir l'activité ${escHtml(a.code)} →</a>
+          <a class="card-go" href="${fileName}" target="_blank" rel="noopener">Ouvrir l'activité ${escHtml(a.code)} ↗</a>
         </div>
       </article>
     `;
@@ -179,10 +181,10 @@ function renderPortalHtml(acts) {
         <p class="sub">${acts.length} applications indépendantes et centrées élève (Problématique · Activité &amp; Graphiques · Modèle 3D ciblé · Correction verrouillée)</p>
       </div>
       <div class="top-links">
-        <a class="btn pri" href="../index.html">Atlas 3D complet</a>
-        <a class="btn" href="vision.html">👁️ Activité Vision (A7)</a>
-        <a class="btn" href="drogues.html">💊 Activité Drogues (A8)</a>
-        <a class="btn dnb" href="brevet_dnb3_sujet.pdf" target="_blank">Sujet Brevet DNB 3 (PDF)</a>
+        <a class="btn pri" href="${atlasHref}" target="_blank" rel="noopener">🧠 Atlas 3D complet</a>
+        <a class="btn" href="${basePrefix}vision.html" target="_blank" rel="noopener">👁️ Activité Vision (A7)</a>
+        <a class="btn" href="${basePrefix}drogues.html" target="_blank" rel="noopener">💊 Activité Drogues (A8)</a>
+        <a class="btn dnb" href="${basePrefix}brevet_dnb3_sujet.pdf" target="_blank" rel="noopener">Sujet Brevet DNB 3 (PDF)</a>
       </div>
     </header>
 
@@ -194,8 +196,8 @@ function renderPortalHtml(acts) {
         <div style="font-size:13px;color:var(--fg2)">Fiche élève imprimable et modifiable (aires visuelles V1–V5, cas cliniques patients A &amp; B).</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <a class="btn dnb" href="fiche_eleve_integration_vision.pdf" target="_blank">📄 Fiche élève Vision (PDF)</a>
-        <a class="btn" href="fiche_eleve_integration_vision.odt" target="_blank">📝 Fiche élève (ODT)</a>
+        <a class="btn dnb" href="${basePrefix}fiche_eleve_integration_vision.pdf" target="_blank" rel="noopener">📄 Fiche élève Vision (PDF)</a>
+        <a class="btn" href="${basePrefix}fiche_eleve_integration_vision.odt" target="_blank" rel="noopener">📝 Fiche élève (ODT)</a>
       </div>
     </div>
 
@@ -205,7 +207,7 @@ function renderPortalHtml(acts) {
         <div style="font-size:13px;color:var(--fg2)">Sommeil, smartphones et consolidation synaptique (avec graphique vectoriel EnCLASS 2024 / ANSES 2026 à analyser et schéma de synapse ~20 nm).</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <a class="btn dnb" href="brevet_dnb3_sujet.pdf" target="_blank">📄 Télécharger le sujet PDF</a>
+        <a class="btn dnb" href="${basePrefix}brevet_dnb3_sujet.pdf" target="_blank" rel="noopener">📄 Télécharger le sujet PDF</a>
       </div>
     </div>
   </div>
@@ -252,8 +254,17 @@ function main() {
     }
   }
 
-  fs.writeFileSync(path.join(OUT_DIR, 'index.html'), renderPortalHtml(acts), 'utf8');
-  console.log(`Built ${acts.length} standalone apps in docs/activites/ (A1..A${acts.length} + vision.html + drogues.html + index.html)`);
+  fs.writeFileSync(
+    path.join(OUT_DIR, 'index.html'),
+    renderPortalHtml(acts, { basePrefix: '', atlasHref: '../atlas.html' }),
+    'utf8'
+  );
+  fs.writeFileSync(
+    path.join(ROOT, 'docs', 'index.html'),
+    renderPortalHtml(acts, { basePrefix: 'activites/', atlasHref: 'atlas.html' }),
+    'utf8'
+  );
+  console.log(`Built ${acts.length} standalone apps in docs/activites/ (A1..A${acts.length} + vision.html + drogues.html + docs/index.html + docs/activites/index.html)`);
 }
 
 main();

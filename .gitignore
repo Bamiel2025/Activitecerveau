@@ -26,11 +26,13 @@ docs/activites/Code.gs
 docs/activites/prof-dashboard.html
 *prof-dashboard*.html
 
-# Corrigés professeurs imprimables (protégés localement)
+# Corrigés et grilles professeurs imprimables (protégés localement)
 docs/activites/activite_4e_integration_vision.pdf
 docs/activites/activite_4e_integration_vision.odt
 docs/activites/brevet_dnb3_corrige_prof.pdf
 docs/activites/*corrige*
+docs/activites/*grilles_evaluation*
+Grilles*.pdf
 
 # Exports de copies élèves
 *.csv
